@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  username       String           @unique
+  password       String
+  phone          String           @unique
+  email          String           @unique
+  fullname       String?
+  address        String?
+  birthday       DateTime?
+  gender         Gender           @default(OTHER)
+  role           Role             @default(PATIENT)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  docter         Docter?
+  rating         Rating[]
+  appointments   Appointment[]
+  medicalHistory MedicalHistory[]
+}
+
+model Docter {
+  id             Int              @id @default(autoincrement())
+  userId         Int              @unique
+  user           User             @relation(fields: [userId], references: [id])
+  speciality     String
+  degree         String
+  experience     String
+  rating         Rating[]
+  appointments   Appointment[]
+  medicalHistory MedicalHistory[]
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  patientId Int
+  patient   User     @relation(fields: [patientId], references: [id])
+  docterId  Int
+  docter    Docter   @relation(fields: [docterId], references: [id])
+  rate      Float
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Appointment {
+  id        Int               @id @default(autoincrement())
+  patientId Int
+  patient   User              @relation(fields: [patientId], references: [id])
+  docterId  Int
+  docter    Docter            @relation(fields: [docterId], references: [id])
+  startTime DateTime
+  endTime   DateTime
+  status    AppointmentStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model MedicalHistory {
+  id            Int      @id @default(autoincrement())
+  patientId     Int
+  patient       User     @relation(fields: [patientId], references: [id])
+  docterId      Int
+  docter        Docter   @relation(fields: [docterId], references: [id])
+  symptons      String
+  diagnosis     String
+  treatment     String
+  prescription  String
+  admissionDate DateTime
+  dischargeDate DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  DOCTER
+  PATIENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELED_BY_DOCTER
+  CANCELED_BY_PATIENT
+}
