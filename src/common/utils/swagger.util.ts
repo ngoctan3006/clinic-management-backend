@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ENV_KEY } from 'src/constants';
+import { ENV_KEY } from 'src/common/constants';
 
 export const setupSwagger = (
   app: INestApplication,

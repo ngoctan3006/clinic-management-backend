@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { ENV_KEY } from 'src/constants';
+import { ENV_KEY } from 'src/common/constants';
 
 @Injectable()
 export class AuthService {
