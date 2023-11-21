@@ -14,24 +14,39 @@ export class AuthService {
     private readonly userService: UserService
   ) {}
 
-  async signup(data: SignupDto): Promise<User> {
+  async signup(data: SignupDto): Promise<Omit<User, 'password'>> {
     const { username, phone, email } = data;
     const usernameExist = await this.userService.findByUsername(username);
     if (usernameExist) {
-      throw new BadRequestException('Username already exists');
+      throw new BadRequestException({
+        success: false,
+        message: 'Username already exists',
+        data: null,
+      });
     }
 
     const emailExist = await this.userService.findByEmail(email);
     if (emailExist) {
-      throw new BadRequestException('Email already exists');
+      throw new BadRequestException({
+        success: false,
+        message: 'Email already exists',
+        data: null,
+      });
     }
 
     const phoneExist = await this.userService.findByPhone(phone);
     if (phoneExist) {
-      throw new BadRequestException('Phone already exists');
+      throw new BadRequestException({
+        success: false,
+        message: 'Phone already exists',
+        data: null,
+      });
     }
 
-    return await this.userService.create(data);
+    const user = await this.userService.create(data);
+    delete user.password;
+
+    return user;
   }
 
   async generateToken(user: User): Promise<{
