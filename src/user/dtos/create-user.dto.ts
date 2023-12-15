@@ -7,5 +7,5 @@ export class CreateUserDto extends SignupDto {
   @ApiProperty({ required: false, enum: Role, default: Role.PATIENT })
   @IsOptional()
   @IsString()
-  role?: string;
+  role?: string = Role.PATIENT;
 }
