@@ -5,6 +5,7 @@ import { User } from '@prisma/client';
 import { ENV_KEY } from 'src/common/constants';
 import { UserService } from 'src/user/user.service';
 import { SignupDto } from './dtos';
+import { comparePassword } from 'src/common/utils';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
     if (usernameExist) {
       throw new BadRequestException({
         success: false,
-        message: 'Username already exists',
+        message: 'Tên đăng nhập đã tồn tại',
         data: null,
       });
     }
@@ -29,7 +30,7 @@ export class AuthService {
     if (emailExist) {
       throw new BadRequestException({
         success: false,
-        message: 'Email already exists',
+        message: 'Địa chỉ email đã tồn tại',
         data: null,
       });
     }
@@ -38,13 +39,35 @@ export class AuthService {
     if (phoneExist) {
       throw new BadRequestException({
         success: false,
-        message: 'Phone already exists',
+        message: 'Số điện thoại đã tồn tại',
+        data: null,
+      });
+    }
+    const user = await this.userService.create(data);
+    delete user.password;
+
+    return user;
+  }
+
+  async signin(username: string, password: string): Promise<User> {
+    const user = await this.userService.findByUsername(username);
+    if (!user) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Tên đăng nhập hoặc mật khẩu không chính xascF',
         data: null,
       });
     }
 
-    const user = await this.userService.create(data);
-    delete user.password;
+    const isPasswordValid = await comparePassword(password, user.password);
+    if (!isPasswordValid) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Tên đăng nhập hoặc mật khẩu không chính xascF',
+        data: null,
+      });
+    }
+    const { accessToken, refreshToken } = await this.generateToken(user);
 
     return user;
   }
