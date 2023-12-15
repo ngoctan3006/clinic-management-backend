@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from '@prisma/client';
+import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class SignupDto {
@@ -34,9 +35,9 @@ export class SignupDto {
   address: string;
 
   @ApiProperty({ description: 'Ngày sinh (ISO Date String)', required: false })
+  @Transform(({ value }) => new Date(value))
   @IsOptional()
-  @IsString()
-  birthday: string;
+  birthday: Date;
 
   @ApiProperty({
     description: 'Giới tính',
