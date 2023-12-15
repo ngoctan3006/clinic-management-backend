@@ -1,11 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { ENV_KEY } from 'src/common/constants';
 import { comparePassword } from 'src/common/utils';
 import { UserService } from 'src/user/user.service';
-import { ResponseLoginDto, SignupDto } from './dtos';
+import { ResponseLoginDto, SignupDto, UserWithoutPassword } from './dtos';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +19,21 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  async signup(data: SignupDto): Promise<Omit<User, 'password'>> {
+  async getMe(userId: number): Promise<UserWithoutPassword> {
+    const user = await this.userService.findById(userId);
+    if (!user) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Không tìm thấy tài khoản của bạn',
+        data: null,
+      });
+    }
+    delete user.password;
+
+    return user;
+  }
+
+  async signup(data: SignupDto): Promise<UserWithoutPassword> {
     const { username, phone, email } = data;
     const usernameExist = await this.userService.findByUsername(username);
     if (usernameExist) {
