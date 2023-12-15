@@ -3,9 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { ENV_KEY } from 'src/common/constants';
-import { UserService } from 'src/user/user.service';
-import { SignupDto } from './dtos';
 import { comparePassword } from 'src/common/utils';
+import { UserService } from 'src/user/user.service';
+import { ResponseLoginDto, SignupDto } from './dtos';
 
 @Injectable()
 export class AuthService {
@@ -49,7 +49,7 @@ export class AuthService {
     return user;
   }
 
-  async signin(username: string, password: string): Promise<User> {
+  async signin(username: string, password: string): Promise<ResponseLoginDto> {
     const user = await this.userService.findByUsername(username);
     if (!user) {
       throw new BadRequestException({
@@ -68,8 +68,13 @@ export class AuthService {
       });
     }
     const { accessToken, refreshToken } = await this.generateToken(user);
+    delete user.password;
 
-    return user;
+    return {
+      accessToken,
+      refreshToken,
+      user,
+    };
   }
 
   async generateToken(user: User): Promise<{
