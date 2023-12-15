@@ -25,14 +25,12 @@ export class UserService {
   }
 
   async create(data: CreateUserDto): Promise<User> {
-    const { password, gender, role, ...rest } = data;
+    const { password, ...rest } = data;
 
     return await this.prisma.user.create({
       data: {
         ...rest,
         password: await hashPassword(password),
-        gender: Gender[gender] || Gender.OTHER,
-        role: Role[role] || Role.PATIENT,
       },
     });
   }

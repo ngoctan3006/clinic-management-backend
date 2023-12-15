@@ -46,5 +46,5 @@ export class SignupDto {
   })
   @IsOptional()
   @IsString()
-  gender: string;
+  gender: Gender = Gender.OTHER;
 }
