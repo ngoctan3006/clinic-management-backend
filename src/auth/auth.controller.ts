@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { IResponse } from 'src/common/dtos';
 import { AuthService } from './auth.service';
@@ -11,9 +11,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOkResponse({ description: 'Signup successfully' })
+  @ApiConsumes(
+    'application/x-www-form-urlencoded',
+    'multipart/form-data',
+    'application/json',
+  )
   @Post('signup')
   async signup(
-    @Body() data: SignupDto
+    @Body() data: SignupDto,
   ): Promise<IResponse<Omit<User, 'password'>>> {
     return {
       success: true,

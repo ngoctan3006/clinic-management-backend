@@ -14,7 +14,7 @@ import { AuthService } from './auth.service';
         secret: configService.get<string>(ENV_KEY.JWT_ACCESS_TOKEN_SECRET),
         signOptions: {
           expiresIn: configService.get<number>(
-            ENV_KEY.JWT_ACCESS_TOKEN_EXPIRATION_TIME
+            ENV_KEY.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
           ),
         },
       }),

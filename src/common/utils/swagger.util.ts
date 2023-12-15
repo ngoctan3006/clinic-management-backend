@@ -5,7 +5,7 @@ import { ENV_KEY } from 'src/common/constants';
 
 export const setupSwagger = (
   app: INestApplication,
-  configService: ConfigService
+  configService: ConfigService,
 ) => {
   const config = new DocumentBuilder()
     .setTitle(configService.get<string>(ENV_KEY.APP_NAME))

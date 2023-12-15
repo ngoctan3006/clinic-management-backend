@@ -11,7 +11,7 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
   ) {}
 
   async signup(data: SignupDto): Promise<Omit<User, 'password'>> {
@@ -62,7 +62,7 @@ export class AuthService {
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>(ENV_KEY.JWT_REFRESH_TOKEN_SECRET),
       expiresIn: this.configService.get<number>(
-        ENV_KEY.JWT_REFRESH_TOKEN_EXPIRATION_TIME
+        ENV_KEY.JWT_REFRESH_TOKEN_EXPIRATION_TIME,
       ),
     });
     return { accessToken, refreshToken };
