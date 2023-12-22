@@ -1,12 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
-import { hashPassword } from 'src/common/utils';
+import { comparePassword, hashPassword } from 'src/common/utils';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDto } from './dtos';
+import { UploadService } from 'src/upload/upload.service';
+import { ChangePasswordDto, CreateUserDto } from './dtos';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
+  ) {}
 
   async findById(id: number): Promise<User> {
     return await this.prisma.user.findUnique({ where: { id } });
@@ -32,6 +40,37 @@ export class UserService {
         ...rest,
         password: await hashPassword(password),
       },
+    });
+  }
+
+  async changePassword(id: number, data: ChangePasswordDto): Promise<void> {
+    const { oldPassword, newPassword, confirmPassword } = data;
+    const user = await this.findById(id);
+    if (!user) {
+      throw new NotFoundException({
+        success: false,
+        message: 'User not found',
+        data: null,
+      });
+    }
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Password and confirm password not match',
+        data: null,
+      });
+    }
+    const isPasswordMatch = await comparePassword(oldPassword, user.password);
+    if (!isPasswordMatch) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Password wrong',
+        data: null,
+      });
+    }
+    await this.prisma.user.update({
+      where: { id },
+      data: { password: await hashPassword(newPassword) },
     });
   }
 }
