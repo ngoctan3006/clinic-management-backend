@@ -35,7 +35,7 @@ export class SignupDto {
   address: string;
 
   @ApiProperty({ description: 'ISO Date String Format', required: false })
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   @IsOptional()
   birthday: Date;
 
