@@ -17,6 +17,11 @@ export class SignupDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  confirmPassword: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   phone: string;
 
   @ApiProperty()

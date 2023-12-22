@@ -34,7 +34,7 @@ export class AuthService {
   }
 
   async signup(data: SignupDto): Promise<UserWithoutPassword> {
-    const { username, phone, email } = data;
+    const { username, phone, email, password, confirmPassword } = data;
     const usernameExist = await this.userService.findByUsername(username);
     if (usernameExist) {
       throw new BadRequestException({
@@ -61,6 +61,15 @@ export class AuthService {
         data: null,
       });
     }
+
+    if (password !== confirmPassword) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Confirm password is not match',
+        data: null,
+      });
+    }
+
     const user = await this.userService.create(data);
     delete user.password;
 
