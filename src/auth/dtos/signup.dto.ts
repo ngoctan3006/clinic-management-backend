@@ -4,43 +4,42 @@ import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class SignupDto {
-  @ApiProperty({ description: 'Tên đăng nhập' })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   username: string;
 
-  @ApiProperty({ description: 'Mật khẩu' })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   password: string;
 
-  @ApiProperty({ description: 'Số điện thoại' })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   phone: string;
 
-  @ApiProperty({ description: 'Địa chỉ email' })
+  @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @ApiProperty({ description: 'Họ và tên', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   fullname: string;
 
-  @ApiProperty({ description: 'Địa chỉ', required: false })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   address: string;
 
-  @ApiProperty({ description: 'Ngày sinh (ISO Date String)', required: false })
+  @ApiProperty({ description: 'ISO Date String Format', required: false })
   @Transform(({ value }) => new Date(value))
   @IsOptional()
   birthday: Date;
 
   @ApiProperty({
-    description: 'Giới tính',
     required: false,
     enum: Gender,
     default: Gender.OTHER,

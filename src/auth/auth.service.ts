@@ -24,7 +24,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException({
         success: false,
-        message: 'Không tìm thấy tài khoản của bạn',
+        message: 'User not found',
         data: null,
       });
     }
@@ -39,7 +39,7 @@ export class AuthService {
     if (usernameExist) {
       throw new BadRequestException({
         success: false,
-        message: 'Tên đăng nhập đã tồn tại',
+        message: 'Username already exists',
         data: null,
       });
     }
@@ -48,7 +48,7 @@ export class AuthService {
     if (emailExist) {
       throw new BadRequestException({
         success: false,
-        message: 'Địa chỉ email đã tồn tại',
+        message: 'Email already exists',
         data: null,
       });
     }
@@ -57,7 +57,7 @@ export class AuthService {
     if (phoneExist) {
       throw new BadRequestException({
         success: false,
-        message: 'Số điện thoại đã tồn tại',
+        message: 'Phone already exists',
         data: null,
       });
     }
@@ -72,7 +72,7 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException({
         success: false,
-        message: 'Tên đăng nhập hoặc mật khẩu không chính xascF',
+        message: 'Username or password is incorrect',
         data: null,
       });
     }
@@ -81,7 +81,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new BadRequestException({
         success: false,
-        message: 'Tên đăng nhập hoặc mật khẩu không chính xascF',
+        message: 'Username or password is incorrect',
         data: null,
       });
     }
