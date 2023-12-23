@@ -9,14 +9,14 @@ export class JwtGuard extends AuthGuard('jwt') {
         err ||
         new UnauthorizedException({
           success: false,
-          message: 'Bạn chưa đăng nhập',
+          message: 'Not authorized',
           data: null,
         })
       );
     if (!user)
       throw new UnauthorizedException({
         success: false,
-        message: 'Bạn chưa đăng nhập',
+        message: 'Not authorized',
         data: null,
       });
 

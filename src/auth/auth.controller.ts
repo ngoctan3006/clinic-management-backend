@@ -29,12 +29,12 @@ export class AuthController {
   ): Promise<IResponse<UserWithoutPassword>> {
     return {
       success: true,
-      message: 'Lấy thông tin tài khoản thành công',
+      message: 'Get me successfully',
       data: await this.authService.getMe(userId),
     };
   }
 
-  @ApiOkResponse({ description: 'Đăng ký tài khoản thành công' })
+  @ApiOkResponse({ description: 'Resgister successfully' })
   @ApiConsumes(
     'application/x-www-form-urlencoded',
     'multipart/form-data',
@@ -46,12 +46,12 @@ export class AuthController {
   ): Promise<IResponse<UserWithoutPassword>> {
     return {
       success: true,
-      message: 'Đăng ký tài khoản thành công',
+      message: 'Resgister successfully',
       data: await this.authService.signup(data),
     };
   }
 
-  @ApiOkResponse({ description: 'Đăng nhập thành công' })
+  @ApiOkResponse({ description: 'Signin successfully' })
   @ApiConsumes(
     'application/x-www-form-urlencoded',
     'multipart/form-data',
@@ -61,7 +61,7 @@ export class AuthController {
   async signin(@Body() data: SigninDto): Promise<IResponse<ResponseLoginDto>> {
     return {
       success: true,
-      message: 'Đăng nhập thành công',
+      message: 'Signin successfully',
       data: await this.authService.signin(data.username, data.password),
     };
   }

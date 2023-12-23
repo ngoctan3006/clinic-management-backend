@@ -21,7 +21,7 @@ export class RolesGuard implements CanActivate {
     if (!user || !requiredRoles.includes(user.position)) {
       throw new ForbiddenException({
         success: false,
-        message: 'Bạn không có quyền truy cập',
+        message: 'Forbidden',
         data: null,
       });
     }

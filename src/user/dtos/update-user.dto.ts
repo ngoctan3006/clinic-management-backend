@@ -1,40 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from '@prisma/client';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
-export class SignupDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  username: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  password: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  confirmPassword: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  phone: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-
+export class UpdateUserDto {
   @ApiProperty({ required: false })
+  @Transform(({ value }) => value || undefined)
   @IsOptional()
   @IsString()
   fullname: string;
 
   @ApiProperty({ required: false })
+  @Transform(({ value }) => value || undefined)
+  @IsOptional()
+  @IsString()
+  email: string;
+
+  @ApiProperty({ required: false })
+  @Transform(({ value }) => value || undefined)
   @IsOptional()
   @IsString()
   address: string;
@@ -47,9 +30,9 @@ export class SignupDto {
   @ApiProperty({
     required: false,
     enum: Gender,
-    default: Gender.OTHER,
   })
+  @Transform(({ value }) => value || undefined)
   @IsOptional()
   @IsString()
-  gender: Gender = Gender.OTHER;
+  gender: Gender;
 }
