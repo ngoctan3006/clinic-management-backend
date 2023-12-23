@@ -79,13 +79,15 @@ export class UserService {
         data: null,
       });
     }
-    const emailExist = await this.findByEmail(data.email);
-    if (emailExist && emailExist.id !== id) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Email already exist',
-        data: null,
-      });
+    if (data.email) {
+      const emailExist = await this.findByEmail(data.email);
+      if (emailExist && emailExist.id !== id) {
+        throw new BadRequestException({
+          success: false,
+          message: 'Email already exist',
+          data: null,
+        });
+      }
     }
     const newUser = await this.prisma.user.update({ where: { id }, data });
     delete newUser.password;
