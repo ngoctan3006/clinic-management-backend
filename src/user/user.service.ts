@@ -7,7 +7,7 @@ import { User } from '@prisma/client';
 import { comparePassword, hashPassword } from 'src/common/utils';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UploadService } from 'src/upload/upload.service';
-import { ChangePasswordDto, CreateUserDto } from './dtos';
+import { ChangePasswordDto, CreateUserDto, UpdateUserDto } from './dtos';
 
 @Injectable()
 export class UserService {
@@ -72,5 +72,27 @@ export class UserService {
       where: { id },
       data: { password: await hashPassword(newPassword) },
     });
+  }
+
+  async update(id: number, data: UpdateUserDto): Promise<User> {
+    const oldUser = await this.findById(id);
+    if (!oldUser) {
+      throw new NotFoundException({
+        success: false,
+        message: 'User not found',
+        data: null,
+      });
+    }
+    const emailExist = await this.findByEmail(data.email);
+    if (emailExist && emailExist.id !== id) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Email already exist',
+        data: null,
+      });
+    }
+    const newUser = await this.prisma.user.update({ where: { id }, data });
+    delete newUser.password;
+    return newUser;
   }
 }
