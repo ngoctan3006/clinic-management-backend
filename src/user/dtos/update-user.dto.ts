@@ -4,17 +4,20 @@ import { Transform } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @Transform(({ value }) => value || undefined)
   @IsOptional()
   @IsString()
   fullname: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @Transform(({ value }) => value || undefined)
   @IsOptional()
   @IsString()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @Transform(({ value }) => value || undefined)
   @IsOptional()
   @IsString()
   address: string;
@@ -28,6 +31,7 @@ export class UpdateUserDto {
     required: false,
     enum: Gender,
   })
+  @Transform(({ value }) => value || undefined)
   @IsOptional()
   @IsString()
   gender: Gender;
