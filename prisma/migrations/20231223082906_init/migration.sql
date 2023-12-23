@@ -10,11 +10,10 @@ CREATE TYPE "AppointmentStatus" AS ENUM ('PENDING', 'CONFIRMED', 'IN_PROGRESS', 
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "username" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "fullname" TEXT,
+    "password" TEXT NOT NULL,
+    "fullname" TEXT NOT NULL,
+    "email" TEXT,
     "address" TEXT,
     "birthday" TIMESTAMP(3),
     "gender" "Gender" NOT NULL DEFAULT 'OTHER',
@@ -81,13 +80,7 @@ CREATE TABLE "MedicalHistory" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
-
--- CreateIndex
 CREATE UNIQUE INDEX "User_phone_key" ON "User"("phone");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Docter_userId_key" ON "Docter"("userId");
