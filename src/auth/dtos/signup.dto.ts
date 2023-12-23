@@ -7,7 +7,7 @@ export class SignupDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  username: string;
+  phone: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -22,19 +22,16 @@ export class SignupDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  phone: string;
+  fullname: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({ required: false })
+  @Transform(({ value }) => value || undefined)
+  @IsOptional()
   @IsEmail()
   email: string;
 
   @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  fullname: string;
-
-  @ApiProperty({ required: false })
+  @Transform(({ value }) => value || undefined)
   @IsOptional()
   @IsString()
   address: string;
