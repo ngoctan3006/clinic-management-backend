@@ -62,7 +62,7 @@ export class AuthController {
     return {
       success: true,
       message: 'Signin successfully',
-      data: await this.authService.signin(data.username, data.password),
+      data: await this.authService.signin(data.phone, data.password),
     };
   }
 }
