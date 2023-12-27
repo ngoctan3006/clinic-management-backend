@@ -68,6 +68,7 @@ export class AuthService {
       });
     }
 
+    delete data.confirmPassword;
     const user = await this.userService.create(data);
     delete user.password;
 
