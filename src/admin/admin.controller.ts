@@ -21,6 +21,13 @@ export class AdminController {
     return this.adminService.getAllPatient(query);
   }
 
+  @Get('doctors')
+  async getAllDoctor(
+    @Query() query: IQuery,
+  ): Promise<IResponse<UserWithoutPassword[]>> {
+    return this.adminService.getAllDoctor(query);
+  }
+
   @ApiConsumes(
     'application/x-www-form-urlencoded',
     'multipart/form-data',
