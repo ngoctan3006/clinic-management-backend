@@ -15,11 +15,20 @@ export class AdminService {
     private readonly userService: UserService,
   ) {}
 
-  async getAllUser(query: IQuery): Promise<IResponse<UserWithoutPassword[]>> {
+  async getAllPatient(
+    query: IQuery,
+  ): Promise<IResponse<UserWithoutPassword[]>> {
     const { page, pageSize } = query;
     const skip = (page - 1) * pageSize;
-    const total = await this.prisma.user.count();
+    const total = await this.prisma.user.count({
+      where: {
+        role: Role.PATIENT,
+      },
+    });
     const data = await this.prisma.user.findMany({
+      where: {
+        role: Role.PATIENT,
+      },
       skip,
       take: pageSize,
       select: {
@@ -37,7 +46,7 @@ export class AdminService {
     });
     return {
       success: true,
-      message: 'Get all user success',
+      message: 'Get all patient success',
       data,
       pagination: {
         page,

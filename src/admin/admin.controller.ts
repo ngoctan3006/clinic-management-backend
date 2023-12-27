@@ -14,11 +14,11 @@ import { CreateDoctorDto, IDoctor } from './dtos';
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @Get('users')
+  @Get('patients')
   async getAllUser(
     @Query() query: IQuery,
   ): Promise<IResponse<UserWithoutPassword[]>> {
-    return this.adminService.getAllUser(query);
+    return this.adminService.getAllPatient(query);
   }
 
   @ApiConsumes(
