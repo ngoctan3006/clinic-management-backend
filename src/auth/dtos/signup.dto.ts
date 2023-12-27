@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { transformToDate, transformValue } from 'src/common/utils';
 
 export class SignupDto {
   @ApiProperty()
@@ -25,19 +26,19 @@ export class SignupDto {
   fullname: string;
 
   @ApiProperty({ required: false })
-  @Transform(({ value }) => value || undefined)
+  @Transform(transformValue)
   @IsOptional()
   @IsEmail()
   email: string;
 
   @ApiProperty({ required: false })
-  @Transform(({ value }) => value || undefined)
+  @Transform(transformValue)
   @IsOptional()
   @IsString()
   address: string;
 
   @ApiProperty({ description: 'ISO Date String Format', required: false })
-  @Transform(({ value }) => (value ? new Date(value) : undefined))
+  @Transform(transformToDate)
   @IsOptional()
   birthday: Date;
 

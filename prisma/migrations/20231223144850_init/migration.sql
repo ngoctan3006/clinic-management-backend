@@ -1,11 +1,11 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('ADMIN', 'DOCTER', 'PATIENT');
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'DOCTOR', 'PATIENT');
 
 -- CreateEnum
 CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'OTHER');
 
 -- CreateEnum
-CREATE TYPE "AppointmentStatus" AS ENUM ('PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELED_BY_DOCTER', 'CANCELED_BY_PATIENT');
+CREATE TYPE "AppointmentStatus" AS ENUM ('PENDING', 'CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELED_BY_DOCTOR', 'CANCELED_BY_PATIENT');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -25,21 +25,21 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Docter" (
+CREATE TABLE "Doctor" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
     "speciality" TEXT NOT NULL,
     "degree" TEXT NOT NULL,
     "experience" TEXT NOT NULL,
 
-    CONSTRAINT "Docter_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Doctor_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Rating" (
     "id" SERIAL NOT NULL,
     "patientId" INTEGER NOT NULL,
-    "docterId" INTEGER NOT NULL,
+    "doctorId" INTEGER NOT NULL,
     "rate" DOUBLE PRECISION NOT NULL,
     "comment" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -52,7 +52,7 @@ CREATE TABLE "Rating" (
 CREATE TABLE "Appointment" (
     "id" SERIAL NOT NULL,
     "patientId" INTEGER NOT NULL,
-    "docterId" INTEGER NOT NULL,
+    "doctorId" INTEGER NOT NULL,
     "startTime" TIMESTAMP(3) NOT NULL,
     "endTime" TIMESTAMP(3) NOT NULL,
     "status" "AppointmentStatus" NOT NULL DEFAULT 'PENDING',
@@ -66,7 +66,7 @@ CREATE TABLE "Appointment" (
 CREATE TABLE "MedicalHistory" (
     "id" SERIAL NOT NULL,
     "patientId" INTEGER NOT NULL,
-    "docterId" INTEGER NOT NULL,
+    "doctorId" INTEGER NOT NULL,
     "symptons" TEXT NOT NULL,
     "diagnosis" TEXT NOT NULL,
     "treatment" TEXT NOT NULL,
@@ -83,25 +83,25 @@ CREATE TABLE "MedicalHistory" (
 CREATE UNIQUE INDEX "User_phone_key" ON "User"("phone");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Docter_userId_key" ON "Docter"("userId");
+CREATE UNIQUE INDEX "Doctor_userId_key" ON "Doctor"("userId");
 
 -- AddForeignKey
-ALTER TABLE "Docter" ADD CONSTRAINT "Docter_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Doctor" ADD CONSTRAINT "Doctor_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Rating" ADD CONSTRAINT "Rating_patientId_fkey" FOREIGN KEY ("patientId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Rating" ADD CONSTRAINT "Rating_docterId_fkey" FOREIGN KEY ("docterId") REFERENCES "Docter"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Rating" ADD CONSTRAINT "Rating_doctorId_fkey" FOREIGN KEY ("doctorId") REFERENCES "Doctor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Appointment" ADD CONSTRAINT "Appointment_patientId_fkey" FOREIGN KEY ("patientId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Appointment" ADD CONSTRAINT "Appointment_docterId_fkey" FOREIGN KEY ("docterId") REFERENCES "Docter"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Appointment" ADD CONSTRAINT "Appointment_doctorId_fkey" FOREIGN KEY ("doctorId") REFERENCES "Doctor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MedicalHistory" ADD CONSTRAINT "MedicalHistory_patientId_fkey" FOREIGN KEY ("patientId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "MedicalHistory" ADD CONSTRAINT "MedicalHistory_docterId_fkey" FOREIGN KEY ("docterId") REFERENCES "Docter"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "MedicalHistory" ADD CONSTRAINT "MedicalHistory_doctorId_fkey" FOREIGN KEY ("doctorId") REFERENCES "Doctor"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
