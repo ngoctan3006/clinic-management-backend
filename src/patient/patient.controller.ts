@@ -8,11 +8,11 @@ import { PatientService } from './patient.service';
 
 @ApiTags('patient')
 @Controller('patient')
+@UseGuards(JwtGuard)
+@ApiBearerAuth()
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
 
-  @UseGuards(JwtGuard)
-  @ApiBearerAuth()
   @ApiConsumes(
     'application/x-www-form-urlencoded',
     'multipart/form-data',
