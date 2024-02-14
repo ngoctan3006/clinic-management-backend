@@ -1,11 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import { MedicalService } from '@prisma/client';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { DoctorService, MedicalService } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateMedicalServiceDto, UpdateMedicalServiceDto } from './dtos';
+import {
+  AddDoctorServiceDto,
+  CreateMedicalServiceDto,
+  UpdateMedicalServiceDto,
+} from './dtos';
 
 @Injectable()
 export class MedicalServiceService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async addDoctorService(data: AddDoctorServiceDto): Promise<DoctorService> {
+    const { doctorId, serviceId } = data;
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id: doctorId },
+    });
+    if (!doctor) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    const service = await this.prisma.medicalService.findUnique({
+      where: { id: serviceId },
+    });
+    if (!service) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Service not found',
+        data: null,
+      });
+    }
+    return await this.prisma.doctorService.create({ data });
+  }
 
   async createMedicalService(
     data: CreateMedicalServiceDto,
@@ -17,6 +46,16 @@ export class MedicalServiceService {
     id: number,
     data: UpdateMedicalServiceDto,
   ): Promise<MedicalService> {
+    const service = await this.prisma.medicalService.findUnique({
+      where: { id },
+    });
+    if (!service) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Service not found',
+        data: null,
+      });
+    }
     return await this.prisma.medicalService.update({
       where: { id },
       data,
@@ -54,6 +93,16 @@ export class MedicalServiceService {
   }
 
   async deleteMedicalService(id: number): Promise<MedicalService> {
+    const service = await this.prisma.medicalService.findUnique({
+      where: { id },
+    });
+    if (!service) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Service not found',
+        data: null,
+      });
+    }
     return await this.prisma.medicalService.delete({ where: { id } });
   }
 }

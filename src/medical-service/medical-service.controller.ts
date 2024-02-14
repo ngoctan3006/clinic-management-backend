@@ -9,11 +9,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { MedicalService, Role } from '@prisma/client';
+import { DoctorService, MedicalService, Role } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guards';
 import { Roles } from 'src/common/decorators';
 import { IResponse } from 'src/common/dtos';
-import { CreateMedicalServiceDto, UpdateMedicalServiceDto } from './dtos';
+import {
+  AddDoctorServiceDto,
+  CreateMedicalServiceDto,
+  UpdateMedicalServiceDto,
+} from './dtos';
 import { MedicalServiceService } from './medical-service.service';
 
 @ApiTags('medical-service')
@@ -76,6 +80,23 @@ export class MedicalServiceController {
       success: true,
       message: 'Delete medical service successfully',
       data: await this.medicalServiceService.deleteMedicalService(id),
+    };
+  }
+
+  @Roles(Role.ADMIN)
+  @ApiConsumes(
+    'application/x-www-form-urlencoded',
+    'multipart/form-data',
+    'application/json',
+  )
+  @Post('doctor-service')
+  async addDoctorService(
+    @Body() data: AddDoctorServiceDto,
+  ): Promise<IResponse<DoctorService>> {
+    return {
+      success: true,
+      message: 'Add doctor service successfully',
+      data: await this.medicalServiceService.addDoctorService(data),
     };
   }
 }
