@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Appointment, Role } from '@prisma/client';
 import { CurrentUser, Roles } from 'src/common/decorators';
+import { IResponse } from 'src/common/dtos';
 import { DoctorService } from './doctor.service';
 import { ChangeAppointmentStatusDto } from './dtos';
 
@@ -15,8 +16,12 @@ export class DoctorController {
   @Get('appointments')
   async getAllAppointments(
     @CurrentUser('id') id: number,
-  ): Promise<Appointment[]> {
-    return this.doctorService.getAllAppointments(id);
+  ): Promise<IResponse<Appointment[]>> {
+    return {
+      success: true,
+      message: 'Get all appointments successfully',
+      data: await this.doctorService.getAllAppointments(id),
+    };
   }
 
   @ApiConsumes(
@@ -26,9 +31,13 @@ export class DoctorController {
   )
   @Put('appointment/:id')
   async changeAppointmentStatus(
-    @Param('id') appointmentId: number,
+    @Param('id') id: number,
     @Body() { status }: ChangeAppointmentStatusDto,
-  ): Promise<Appointment> {
-    return this.doctorService.changeAppointmentStatus(appointmentId, status);
+  ): Promise<IResponse<Appointment>> {
+    return {
+      success: true,
+      message: 'Change appointment status successfully',
+      data: await this.doctorService.changeAppointmentStatus(id, status),
+    };
   }
 }
