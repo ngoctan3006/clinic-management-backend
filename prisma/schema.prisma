@@ -103,6 +103,8 @@ model DoctorService {
   medicalService MedicalService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+
+  @@unique([doctorId, serviceId])
 }
 
 enum Role {

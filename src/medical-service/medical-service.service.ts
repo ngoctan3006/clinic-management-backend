@@ -33,7 +33,54 @@ export class MedicalServiceService {
         data: null,
       });
     }
+    const doctorService = await this.prisma.doctorService.findUnique({
+      where: { doctorId_serviceId: { doctorId, serviceId } },
+    });
+    if (doctorService) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor service existed',
+        data: null,
+      });
+    }
     return await this.prisma.doctorService.create({ data });
+  }
+
+  async deleteDoctorService(data: AddDoctorServiceDto): Promise<DoctorService> {
+    const { doctorId, serviceId } = data;
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id: doctorId },
+    });
+    if (!doctor) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    const service = await this.prisma.medicalService.findUnique({
+      where: { id: serviceId },
+    });
+    if (!service) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Service not found',
+        data: null,
+      });
+    }
+    const doctorService = await this.prisma.doctorService.findUnique({
+      where: { doctorId_serviceId: { doctorId, serviceId } },
+    });
+    if (!doctorService) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor service not found',
+        data: null,
+      });
+    }
+    return await this.prisma.doctorService.delete({
+      where: { id: doctorService.id },
+    });
   }
 
   async createMedicalService(

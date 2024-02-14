@@ -99,4 +99,21 @@ export class MedicalServiceController {
       data: await this.medicalServiceService.addDoctorService(data),
     };
   }
+
+  @Roles(Role.ADMIN)
+  @ApiConsumes(
+    'application/x-www-form-urlencoded',
+    'multipart/form-data',
+    'application/json',
+  )
+  @Post('doctor-service/delete')
+  async deleteDoctorService(
+    @Body() data: AddDoctorServiceDto,
+  ): Promise<IResponse<DoctorService>> {
+    return {
+      success: true,
+      message: 'Delete doctor service successfully',
+      data: await this.medicalServiceService.deleteDoctorService(data),
+    };
+  }
 }
