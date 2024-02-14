@@ -1,11 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { OmitType } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
-import { IsOptional, IsString } from 'class-validator';
 import { SignupDto } from 'src/auth/dtos';
 
-export class CreateUserDto extends SignupDto {
-  @ApiProperty({ required: false, enum: Role, default: Role.PATIENT })
-  @IsOptional()
-  @IsString()
+export class CreateUserDto extends OmitType(SignupDto, [
+  'confirmPassword',
+] as const) {
   role?: Role = Role.PATIENT;
 }

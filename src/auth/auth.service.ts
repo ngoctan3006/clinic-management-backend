@@ -9,7 +9,12 @@ import { User } from '@prisma/client';
 import { ENV_KEY } from 'src/common/constants';
 import { comparePassword } from 'src/common/utils';
 import { UserService } from 'src/user/user.service';
-import { ResponseLoginDto, SignupDto, UserWithoutPassword } from './dtos';
+import {
+  JwtPayload,
+  ResponseLoginDto,
+  SignupDto,
+  UserWithoutPassword,
+} from './dtos';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +29,7 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException({
         success: false,
-        message: 'Không tìm thấy tài khoản của bạn',
+        message: 'User not found',
         data: null,
       });
     }
@@ -34,45 +39,48 @@ export class AuthService {
   }
 
   async signup(data: SignupDto): Promise<UserWithoutPassword> {
-    const { username, phone, email } = data;
-    const usernameExist = await this.userService.findByUsername(username);
-    if (usernameExist) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Tên đăng nhập đã tồn tại',
-        data: null,
-      });
-    }
-
-    const emailExist = await this.userService.findByEmail(email);
-    if (emailExist) {
-      throw new BadRequestException({
-        success: false,
-        message: 'Địa chỉ email đã tồn tại',
-        data: null,
-      });
-    }
-
+    const { phone, email, password, confirmPassword } = data;
     const phoneExist = await this.userService.findByPhone(phone);
     if (phoneExist) {
       throw new BadRequestException({
         success: false,
-        message: 'Số điện thoại đã tồn tại',
+        message: 'Phone already exists',
         data: null,
       });
     }
+
+    if (email) {
+      const emailExist = await this.userService.findByEmail(email);
+      if (emailExist) {
+        throw new BadRequestException({
+          success: false,
+          message: 'Email already exists',
+          data: null,
+        });
+      }
+    }
+
+    if (password !== confirmPassword) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Confirm password is not match',
+        data: null,
+      });
+    }
+
+    delete data.confirmPassword;
     const user = await this.userService.create(data);
     delete user.password;
 
     return user;
   }
 
-  async signin(username: string, password: string): Promise<ResponseLoginDto> {
-    const user = await this.userService.findByUsername(username);
+  async signin(phone: string, password: string): Promise<ResponseLoginDto> {
+    const user = await this.userService.findByPhone(phone);
     if (!user) {
       throw new BadRequestException({
         success: false,
-        message: 'Tên đăng nhập hoặc mật khẩu không chính xascF',
+        message: 'Phone number or password is incorrect',
         data: null,
       });
     }
@@ -81,7 +89,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new BadRequestException({
         success: false,
-        message: 'Tên đăng nhập hoặc mật khẩu không chính xascF',
+        message: 'Phone number or password is incorrect',
         data: null,
       });
     }
@@ -99,9 +107,9 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
   }> {
-    const payload = {
+    const payload: JwtPayload = {
       id: user.id,
-      username: user.username,
+      phone: user.phone,
       role: user.role,
     };
     const accessToken = await this.jwtService.signAsync(payload);

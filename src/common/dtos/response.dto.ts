@@ -4,7 +4,7 @@ export class IResponse<T> {
   data: T;
   pagination?: {
     page: number;
-    limit: number;
-    totalPage: number;
+    pageSize: number;
+    total: number;
   };
 }
