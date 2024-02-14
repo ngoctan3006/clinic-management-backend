@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Appointment } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guards';
 import { CurrentUser } from 'src/common/decorators';
+import { IResponse } from 'src/common/dtos';
 import { CreateAppointmentDto } from './dtos';
 import { PatientService } from './patient.service';
 
@@ -22,7 +23,11 @@ export class PatientController {
   async createAppointment(
     @CurrentUser('id') patientId: number,
     @Body() data: CreateAppointmentDto,
-  ): Promise<Appointment> {
-    return this.patientService.createAppointment(patientId, data);
+  ): Promise<IResponse<Appointment>> {
+    return {
+      success: true,
+      message: 'Create appointment successfully',
+      data: await this.patientService.createAppointment(patientId, data),
+    };
   }
 }

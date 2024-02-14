@@ -56,14 +56,14 @@ model Rating {
 model Appointment {
   id        Int               @id @default(autoincrement())
   patientId Int
-  patient   User              @relation(fields: [patientId], references: [id])
+  patient   User              @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctorId  Int
-  doctor    Doctor?           @relation(fields: [doctorId], references: [id])
+  doctor    Doctor?           @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   startTime DateTime
   endTime   DateTime
   status    AppointmentStatus @default(PENDING)
   serviceId Int
-  service   MedicalService    @relation(fields: [serviceId], references: [id])
+  service   MedicalService    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 }
@@ -71,9 +71,9 @@ model Appointment {
 model MedicalHistory {
   id            Int      @id @default(autoincrement())
   patientId     Int
-  patient       User     @relation(fields: [patientId], references: [id])
+  patient       User     @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctorId      Int
-  doctor        Doctor?  @relation(fields: [doctorId], references: [id])
+  doctor        Doctor?  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   symptons      String
   diagnosis     String
   treatment     String
@@ -98,11 +98,13 @@ model MedicalService {
 model DoctorService {
   id             Int            @id @default(autoincrement())
   doctorId       Int
-  doctor         Doctor         @relation(fields: [doctorId], references: [id])
+  doctor         Doctor         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   serviceId      Int
-  medicalService MedicalService @relation(fields: [serviceId], references: [id])
+  medicalService MedicalService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+
+  @@unique([doctorId, serviceId])
 }
 
 enum Role {
