@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MedicalService } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateMedicalServiceDto } from './dtos';
+import { CreateMedicalServiceDto, UpdateMedicalServiceDto } from './dtos';
 
 @Injectable()
 export class MedicalServiceService {
@@ -11,6 +11,16 @@ export class MedicalServiceService {
     data: CreateMedicalServiceDto,
   ): Promise<MedicalService> {
     return await this.prisma.medicalService.create({ data });
+  }
+
+  async updateMedicalService(
+    id: number,
+    data: UpdateMedicalServiceDto,
+  ): Promise<MedicalService> {
+    return await this.prisma.medicalService.update({
+      where: { id },
+      data,
+    });
   }
 
   async getAllServices(): Promise<MedicalService[]> {
