@@ -101,7 +101,6 @@ model DoctorService {
   doctor         Doctor         @relation(fields: [doctorId], references: [id])
   serviceId      Int
   medicalService MedicalService @relation(fields: [serviceId], references: [id])
-  price          Float
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 }
