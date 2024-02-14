@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -11,6 +12,7 @@ import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { MedicalService, Role } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guards';
 import { Roles } from 'src/common/decorators';
+import { IResponse } from 'src/common/dtos';
 import { CreateMedicalServiceDto, UpdateMedicalServiceDto } from './dtos';
 import { MedicalServiceService } from './medical-service.service';
 
@@ -22,8 +24,12 @@ export class MedicalServiceController {
 
   @UseGuards(JwtGuard)
   @Get()
-  async getAllServices(): Promise<MedicalService[]> {
-    return this.medicalServiceService.getAllServices();
+  async getAllServices(): Promise<IResponse<MedicalService[]>> {
+    return {
+      success: true,
+      message: 'Get all medical services successfully',
+      data: await this.medicalServiceService.getAllServices(),
+    };
   }
 
   @Roles(Role.ADMIN)
@@ -35,8 +41,12 @@ export class MedicalServiceController {
   @Post()
   async createMedicalService(
     @Body() data: CreateMedicalServiceDto,
-  ): Promise<MedicalService> {
-    return this.medicalServiceService.createMedicalService(data);
+  ): Promise<IResponse<MedicalService>> {
+    return {
+      success: true,
+      message: 'Create medical service successfully',
+      data: await this.medicalServiceService.createMedicalService(data),
+    };
   }
 
   @Roles(Role.ADMIN)
@@ -49,7 +59,23 @@ export class MedicalServiceController {
   async updateMedicalService(
     @Param('id') id: number,
     @Body() data: UpdateMedicalServiceDto,
-  ): Promise<MedicalService> {
-    return this.medicalServiceService.updateMedicalService(id, data);
+  ): Promise<IResponse<MedicalService>> {
+    return {
+      success: true,
+      message: 'Update medical service successfully',
+      data: await this.medicalServiceService.updateMedicalService(id, data),
+    };
+  }
+
+  @Roles(Role.ADMIN)
+  @Delete(':id')
+  async deleteMedicalService(
+    @Param('id') id: number,
+  ): Promise<IResponse<MedicalService>> {
+    return {
+      success: true,
+      message: 'Delete medical service successfully',
+      data: await this.medicalServiceService.deleteMedicalService(id),
+    };
   }
 }

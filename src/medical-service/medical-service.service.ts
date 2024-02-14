@@ -52,4 +52,8 @@ export class MedicalServiceService {
       },
     });
   }
+
+  async deleteMedicalService(id: number): Promise<MedicalService> {
+    return await this.prisma.medicalService.delete({ where: { id } });
+  }
 }
