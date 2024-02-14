@@ -38,6 +38,7 @@ model Doctor {
   rating         Rating[]
   appointments   Appointment[]
   medicalHistory MedicalHistory[]
+  services       DoctorService[]
 }
 
 model Rating {
@@ -61,6 +62,8 @@ model Appointment {
   startTime DateTime
   endTime   DateTime
   status    AppointmentStatus @default(PENDING)
+  serviceId Int
+  service   MedicalService    @relation(fields: [serviceId], references: [id])
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
 }
@@ -79,6 +82,27 @@ model MedicalHistory {
   dischargeDate DateTime
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model MedicalService {
+  id           Int             @id @default(autoincrement())
+  name         String
+  description  String
+  price        Float
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  doctors      DoctorService[]
+  appointments Appointment[]
+}
+
+model DoctorService {
+  id             Int            @id @default(autoincrement())
+  doctorId       Int
+  doctor         Doctor         @relation(fields: [doctorId], references: [id])
+  serviceId      Int
+  medicalService MedicalService @relation(fields: [serviceId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 enum Role {
