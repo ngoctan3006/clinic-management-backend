@@ -198,4 +198,39 @@ export class AdminService {
       },
     });
   }
+
+  async restoreDoctor(id: number): Promise<IDoctor> {
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id, deletedAt: { not: null } },
+    });
+    if (!doctor) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    await this.prisma.doctor.update({
+      where: { id },
+      data: {
+        deletedAt: null,
+      },
+    });
+    return await this.prisma.user.findUnique({
+      where: { id: doctor.userId },
+      select: {
+        id: true,
+        phone: true,
+        fullname: true,
+        email: true,
+        address: true,
+        birthday: true,
+        gender: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        doctor: true,
+      },
+    });
+  }
 }

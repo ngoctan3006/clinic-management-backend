@@ -4,18 +4,11 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiConsumes,
-  ApiParam,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Doctor, Role } from '@prisma/client';
 import { UserWithoutPassword } from 'src/auth/dtos';
 import { Roles } from 'src/common/decorators';
@@ -80,14 +73,22 @@ export class AdminController {
 
   @ApiParam({ name: 'id', description: 'Doctor id' })
   @Delete('doctor/:id')
-  async deleteMedicalService(
-    @Param('id') id: number,
-  ): Promise<IResponse<null>> {
+  async deleteDoctor(@Param('id') id: number): Promise<IResponse<null>> {
     await this.adminService.deleteDoctor(+id);
     return {
       success: true,
       message: 'Delete doctor successfully',
       data: null,
+    };
+  }
+
+  @ApiParam({ name: 'id', description: 'Doctor id' })
+  @Put('doctor/restore/:id')
+  async restoreDoctor(@Param('id') id: number): Promise<IResponse<IDoctor>> {
+    return {
+      success: true,
+      message: 'Restore doctor successfully',
+      data: await this.adminService.restoreDoctor(+id),
     };
   }
 }
