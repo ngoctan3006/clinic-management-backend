@@ -11,8 +11,8 @@ import { AppointmentService } from './appointment.service';
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
-  @Roles(Role.ADMIN, Role.DOCTOR)
-  @Get()
+  @Roles(Role.ADMIN)
+  @Get('all')
   async getAllUser(@Query() query: IQuery): Promise<IResponse<Appointment[]>> {
     return this.appointmentService.getAllAppointment(query);
   }

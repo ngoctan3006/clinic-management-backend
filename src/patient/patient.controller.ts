@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -50,7 +51,7 @@ export class PatientController {
   @Put('appointment/cancel/:id')
   async cancelAppointment(
     @CurrentUser('id') patientId: number,
-    @Query('id') id: number,
+    @Param('id') id: number,
   ): Promise<IResponse<Appointment>> {
     return {
       success: true,
