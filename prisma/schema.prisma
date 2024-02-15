@@ -22,6 +22,7 @@ model User {
   role           Role             @default(PATIENT)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
   doctor         Doctor?
   rating         Rating[]
   appointments   Appointment[]
@@ -45,15 +46,16 @@ model Doctor {
 }
 
 model Rating {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   patientId Int
-  patient   User     @relation(fields: [patientId], references: [id])
+  patient   User      @relation(fields: [patientId], references: [id])
   doctorId  Int
-  doctor    Doctor?  @relation(fields: [doctorId], references: [id])
+  doctor    Doctor?   @relation(fields: [doctorId], references: [id])
   rate      Float
   comment   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model Appointment {
@@ -69,22 +71,24 @@ model Appointment {
   service   MedicalService    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+  deletedAt DateTime?
 }
 
 model MedicalHistory {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   patientId     Int
-  patient       User     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient       User      @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctorId      Int
-  doctor        Doctor?  @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  doctor        Doctor?   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   symptons      String
   diagnosis     String
   treatment     String
   prescription  String
   admissionDate DateTime
   dischargeDate DateTime
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
 }
 
 model MedicalService {
@@ -94,6 +98,7 @@ model MedicalService {
   price        Float
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
+  deletedAt    DateTime?
   doctors      DoctorService[]
   appointments Appointment[]
 }
@@ -106,6 +111,7 @@ model DoctorService {
   medicalService MedicalService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
 
   @@unique([doctorId, serviceId])
 }

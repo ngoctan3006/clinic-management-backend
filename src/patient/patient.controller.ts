@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { Appointment } from '@prisma/client';
+import { Appointment, MedicalHistory } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guards';
 import { CurrentUser } from 'src/common/decorators';
 import { IQuery, IResponse } from 'src/common/dtos';
@@ -25,10 +25,18 @@ export class PatientController {
 
   @Get('appointments')
   async getAllAppointment(
-    @CurrentUser('id') id: number,
+    @CurrentUser('id') patientId: number,
     @Query() query: IQuery,
   ): Promise<IResponse<Appointment[]>> {
-    return this.patientService.getAppointmentByPatientId(id, query);
+    return this.patientService.getAppointmentByPatientId(patientId, query);
+  }
+
+  @Get('medical-histories')
+  async getAllMedicalHistories(
+    @CurrentUser('id') patientId: number,
+    @Query() query: IQuery,
+  ): Promise<IResponse<MedicalHistory[]>> {
+    return await this.patientService.getAllMedicalHistory(patientId, query);
   }
 
   @ApiConsumes(

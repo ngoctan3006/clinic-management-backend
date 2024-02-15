@@ -1,5 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Appointment, AppointmentStatus } from '@prisma/client';
+import {
+  Appointment,
+  AppointmentStatus,
+  MedicalHistory,
+  Role,
+} from '@prisma/client';
 import { IQuery, IResponse } from 'src/common/dtos';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAppointmentDto } from './dtos';
@@ -72,6 +77,74 @@ export class PatientService {
     return {
       success: true,
       message: 'Get all appointment success',
+      data,
+      pagination: {
+        page,
+        pageSize,
+        total,
+      },
+    };
+  }
+
+  async getAllMedicalHistory(
+    patientId: number,
+    query: IQuery,
+  ): Promise<IResponse<MedicalHistory[]>> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: patientId, role: Role.PATIENT },
+    });
+    if (!user) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Patient not found',
+        data: null,
+      });
+    }
+    const { page, pageSize } = query;
+    const skip = (page - 1) * pageSize;
+    const total = await this.prisma.medicalHistory.count({
+      where: { patientId, deletedAt: null },
+    });
+    const data = await this.prisma.medicalHistory.findMany({
+      where: { patientId, deletedAt: null },
+      skip,
+      take: pageSize,
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            degree: true,
+            speciality: true,
+            experience: true,
+            user: {
+              select: {
+                id: true,
+                phone: true,
+                fullname: true,
+                email: true,
+                address: true,
+                birthday: true,
+                gender: true,
+              },
+            },
+          },
+        },
+        patient: {
+          select: {
+            id: true,
+            phone: true,
+            fullname: true,
+            email: true,
+            address: true,
+            birthday: true,
+            gender: true,
+          },
+        },
+      },
+    });
+    return {
+      success: true,
+      message: 'Get all medical history success',
       data,
       pagination: {
         page,

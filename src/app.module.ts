@@ -4,6 +4,7 @@ import { AdminModule } from './admin/admin.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { AuthModule } from './auth/auth.module';
 import { DoctorModule } from './doctor/doctor.module';
+import { MedicalHistoryModule } from './medical-history/medical-history.module';
 import { MedicalServiceModule } from './medical-service/medical-service.module';
 import { PatientModule } from './patient/patient.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -19,6 +20,7 @@ import { UserModule } from './user/user.module';
     AppointmentModule,
     AuthModule,
     DoctorModule,
+    MedicalHistoryModule,
     MedicalServiceModule,
     PatientModule,
     PrismaModule,

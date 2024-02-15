@@ -1,8 +1,16 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { Appointment, Role } from '@prisma/client';
+import { Appointment, MedicalHistory, Role } from '@prisma/client';
 import { CurrentUser, Roles } from 'src/common/decorators';
-import { IResponse } from 'src/common/dtos';
+import { IQuery, IResponse } from 'src/common/dtos';
 import { DoctorService } from './doctor.service';
 import { ChangeAppointmentStatusDto } from './dtos';
 
@@ -15,13 +23,18 @@ export class DoctorController {
 
   @Get('appointments')
   async getAllAppointments(
-    @CurrentUser('id') id: number,
+    @CurrentUser('id') userId: number,
+    @Query() query: IQuery,
   ): Promise<IResponse<Appointment[]>> {
-    return {
-      success: true,
-      message: 'Get all appointments successfully',
-      data: await this.doctorService.getAllAppointments(id),
-    };
+    return this.doctorService.getAllAppointments(userId, query);
+  }
+
+  @Get('medical-histories')
+  async getAllMedicalHistories(
+    @CurrentUser('id') userId: number,
+    @Query() query: IQuery,
+  ): Promise<IResponse<MedicalHistory[]>> {
+    return await this.doctorService.getAllMedicalHistory(userId, query);
   }
 
   @ApiConsumes(
@@ -38,6 +51,31 @@ export class DoctorController {
       success: true,
       message: 'Change appointment status successfully',
       data: await this.doctorService.changeAppointmentStatus(id, status),
+    };
+  }
+
+  @Delete('medical-history/:id')
+  async deleteMedicalHistory(
+    @CurrentUser('id') userId: number,
+    @Param('id') id: number,
+  ): Promise<IResponse<null>> {
+    await this.doctorService.deleteMedicalHistory(id, userId);
+    return {
+      success: true,
+      message: 'Delete medical history successfully',
+      data: null,
+    };
+  }
+
+  @Put('medical-history/restore/:id')
+  async restoreMedicalHistory(
+    @CurrentUser('id') userId: number,
+    @Param('id') id: number,
+  ): Promise<IResponse<MedicalHistory>> {
+    return {
+      success: true,
+      message: 'Restore medical history successfully',
+      data: await this.doctorService.restoreMedicalHistory(id, userId),
     };
   }
 }
