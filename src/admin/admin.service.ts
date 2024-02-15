@@ -66,11 +66,17 @@ export class AdminService {
     const total = await this.prisma.user.count({
       where: {
         role: Role.DOCTOR,
+        doctor: {
+          deletedAt: null,
+        },
       },
     });
     const data = await this.prisma.user.findMany({
       where: {
         role: Role.DOCTOR,
+        doctor: {
+          deletedAt: null,
+        },
       },
       skip,
       take: pageSize,
@@ -158,7 +164,9 @@ export class AdminService {
   }
 
   async updateDoctor(id: number, data: UpdateDoctorDto): Promise<Doctor> {
-    const doctor = await this.prisma.doctor.findUnique({ where: { id } });
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id, deletedAt: null },
+    });
     if (!doctor) {
       throw new NotFoundException({
         success: false,
@@ -169,6 +177,25 @@ export class AdminService {
     return await this.prisma.doctor.update({
       where: { id },
       data,
+    });
+  }
+
+  async deleteDoctor(id: number): Promise<Doctor> {
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id, deletedAt: null },
+    });
+    if (!doctor) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    return await this.prisma.doctor.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -74,6 +75,19 @@ export class AdminController {
       success: true,
       message: 'Update doctor successfully',
       data: await this.adminService.updateDoctor(+id, data),
+    };
+  }
+
+  @ApiParam({ name: 'id', description: 'Doctor id' })
+  @Delete('doctor/:id')
+  async deleteMedicalService(
+    @Param('id') id: number,
+  ): Promise<IResponse<null>> {
+    await this.adminService.deleteDoctor(+id);
+    return {
+      success: true,
+      message: 'Delete doctor successfully',
+      data: null,
     };
   }
 }
