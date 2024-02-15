@@ -14,7 +14,7 @@ export class MedicalServiceService {
   async addDoctorService(data: AddDoctorServiceDto): Promise<DoctorService> {
     const { doctorId, serviceId } = data;
     const doctor = await this.prisma.doctor.findUnique({
-      where: { id: doctorId },
+      where: { id: doctorId, deletedAt: null },
     });
     if (!doctor) {
       throw new NotFoundException({
