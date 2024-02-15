@@ -2,10 +2,65 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { MedicalHistory, Role } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateMedicalHistoryDto, UpdateMedicalHistoryDto } from './dtos';
+import { IQuery, IResponse } from 'src/common/dtos';
 
 @Injectable()
 export class MedicalHistoryService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getAllMedicalHistory(
+    query: IQuery,
+  ): Promise<IResponse<MedicalHistory[]>> {
+    const { page, pageSize } = query;
+    const skip = (page - 1) * pageSize;
+    const total = await this.prisma.medicalHistory.count();
+    const data = await this.prisma.medicalHistory.findMany({
+      skip,
+      take: pageSize,
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            degree: true,
+            speciality: true,
+            experience: true,
+            user: {
+              select: {
+                id: true,
+                phone: true,
+                fullname: true,
+                email: true,
+                address: true,
+                birthday: true,
+                gender: true,
+              },
+            },
+          },
+        },
+        patient: {
+          select: {
+            id: true,
+            phone: true,
+            fullname: true,
+            email: true,
+            address: true,
+            birthday: true,
+            gender: true,
+          },
+        },
+      },
+    });
+    return {
+      success: true,
+      message: 'Get all medical history success',
+      data,
+      pagination: {
+        page,
+        pageSize,
+        total,
+      },
+    };
+  }
 
   async createMedicalHistory(
     userId: number,

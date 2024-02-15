@@ -1,8 +1,8 @@
-import { Body, Controller, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 import { MedicalHistory, Role } from '@prisma/client';
 import { CurrentUser, Roles } from 'src/common/decorators';
-import { IResponse } from 'src/common/dtos';
+import { IQuery, IResponse } from 'src/common/dtos';
 import { CreateMedicalHistoryDto, UpdateMedicalHistoryDto } from './dtos';
 import { MedicalHistoryService } from './medical-history.service';
 
@@ -11,6 +11,14 @@ import { MedicalHistoryService } from './medical-history.service';
 @ApiBearerAuth()
 export class MedicalHistoryController {
   constructor(private readonly medicalHistoryService: MedicalHistoryService) {}
+
+  @Roles(Role.ADMIN)
+  @Get('all')
+  async getAllUser(
+    @Query() query: IQuery,
+  ): Promise<IResponse<MedicalHistory[]>> {
+    return this.medicalHistoryService.getAllMedicalHistory(query);
+  }
 
   @Roles(Role.DOCTOR)
   @ApiConsumes(
