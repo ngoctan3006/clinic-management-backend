@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { Appointment, Role } from '@prisma/client';
+import { Appointment, MedicalHistory, Role } from '@prisma/client';
 import { CurrentUser, Roles } from 'src/common/decorators';
-import { IResponse } from 'src/common/dtos';
+import { IQuery, IResponse } from 'src/common/dtos';
 import { DoctorService } from './doctor.service';
 import { ChangeAppointmentStatusDto } from './dtos';
 
@@ -22,6 +22,14 @@ export class DoctorController {
       message: 'Get all appointments successfully',
       data: await this.doctorService.getAllAppointments(id),
     };
+  }
+
+  @Get('medical-histories')
+  async getAllMedicalHistories(
+    @CurrentUser('id') userId: number,
+    @Query() query: IQuery,
+  ): Promise<IResponse<MedicalHistory[]>> {
+    return await this.doctorService.getAllMedicalHistory(userId, query);
   }
 
   @ApiConsumes(
