@@ -1,12 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaClient, Role } from '@prisma/client';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Doctor, PrismaClient, Role } from '@prisma/client';
 import * as runtime from '@prisma/client/runtime/library';
 import { UserWithoutPassword } from 'src/auth/dtos';
 import { IQuery, IResponse } from 'src/common/dtos';
 import { hashPassword } from 'src/common/utils';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
-import { CreateDoctorDto, IDoctor } from './dtos';
+import { CreateDoctorDto, IDoctor, UpdateDoctorDto } from './dtos';
 
 @Injectable()
 export class AdminService {
@@ -62,11 +66,17 @@ export class AdminService {
     const total = await this.prisma.user.count({
       where: {
         role: Role.DOCTOR,
+        doctor: {
+          deletedAt: null,
+        },
       },
     });
     const data = await this.prisma.user.findMany({
       where: {
         role: Role.DOCTOR,
+        doctor: {
+          deletedAt: null,
+        },
       },
       skip,
       take: pageSize,
@@ -151,5 +161,76 @@ export class AdminService {
         data: null,
       });
     }
+  }
+
+  async updateDoctor(id: number, data: UpdateDoctorDto): Promise<Doctor> {
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id, deletedAt: null },
+    });
+    if (!doctor) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    return await this.prisma.doctor.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteDoctor(id: number): Promise<Doctor> {
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id, deletedAt: null },
+    });
+    if (!doctor) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    return await this.prisma.doctor.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  async restoreDoctor(id: number): Promise<IDoctor> {
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id, deletedAt: { not: null } },
+    });
+    if (!doctor) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    await this.prisma.doctor.update({
+      where: { id },
+      data: {
+        deletedAt: null,
+      },
+    });
+    return await this.prisma.user.findUnique({
+      where: { id: doctor.userId },
+      select: {
+        id: true,
+        phone: true,
+        fullname: true,
+        email: true,
+        address: true,
+        birthday: true,
+        gender: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        doctor: true,
+      },
+    });
   }
 }

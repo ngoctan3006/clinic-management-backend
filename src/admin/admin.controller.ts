@@ -1,11 +1,20 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
+import { Doctor, Role } from '@prisma/client';
 import { UserWithoutPassword } from 'src/auth/dtos';
 import { Roles } from 'src/common/decorators';
 import { IQuery, IResponse } from 'src/common/dtos';
 import { AdminService } from './admin.service';
-import { CreateDoctorDto, IDoctor } from './dtos';
+import { CreateDoctorDto, IDoctor, UpdateDoctorDto } from './dtos';
 
 @ApiTags('admin')
 @Roles(Role.ADMIN)
@@ -41,6 +50,45 @@ export class AdminController {
       success: true,
       message: 'Create doctor successfully',
       data: await this.adminService.createDoctor(data),
+    };
+  }
+
+  @ApiConsumes(
+    'application/x-www-form-urlencoded',
+    'multipart/form-data',
+    'application/json',
+  )
+  @ApiParam({ name: 'id', description: 'Doctor id' })
+  @Put('doctor/:id')
+  async updateMedicalService(
+    @Param('id') id: number,
+    @Body() data: UpdateDoctorDto,
+  ): Promise<IResponse<Doctor>> {
+    return {
+      success: true,
+      message: 'Update doctor successfully',
+      data: await this.adminService.updateDoctor(+id, data),
+    };
+  }
+
+  @ApiParam({ name: 'id', description: 'Doctor id' })
+  @Delete('doctor/:id')
+  async deleteDoctor(@Param('id') id: number): Promise<IResponse<null>> {
+    await this.adminService.deleteDoctor(+id);
+    return {
+      success: true,
+      message: 'Delete doctor successfully',
+      data: null,
+    };
+  }
+
+  @ApiParam({ name: 'id', description: 'Doctor id' })
+  @Put('doctor/restore/:id')
+  async restoreDoctor(@Param('id') id: number): Promise<IResponse<IDoctor>> {
+    return {
+      success: true,
+      message: 'Restore doctor successfully',
+      data: await this.adminService.restoreDoctor(+id),
     };
   }
 }
