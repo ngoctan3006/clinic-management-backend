@@ -39,6 +39,9 @@ model Doctor {
   appointments   Appointment[]
   medicalHistory MedicalHistory[]
   services       DoctorService[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime?        @updatedAt
+  deletedAt      DateTime?
 }
 
 model Rating {
