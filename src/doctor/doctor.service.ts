@@ -80,7 +80,9 @@ export class DoctorService {
     const doctorId = user.doctor.id;
     const { page, pageSize } = query;
     const skip = (page - 1) * pageSize;
-    const total = await this.prisma.medicalHistory.count();
+    const total = await this.prisma.medicalHistory.count({
+      where: { doctorId },
+    });
     const data = await this.prisma.medicalHistory.findMany({
       where: { doctorId },
       skip,
