@@ -1,9 +1,9 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Appointment } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guards';
 import { CurrentUser } from 'src/common/decorators';
-import { IResponse } from 'src/common/dtos';
+import { IQuery, IResponse } from 'src/common/dtos';
 import { CreateAppointmentDto } from './dtos';
 import { PatientService } from './patient.service';
 
@@ -13,6 +13,14 @@ import { PatientService } from './patient.service';
 @ApiBearerAuth()
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
+
+  @Get('appointments')
+  async getAllAppointment(
+    @CurrentUser('id') id: number,
+    @Query() query: IQuery,
+  ): Promise<IResponse<Appointment[]>> {
+    return this.patientService.getAppointmentByPatientId(id, query);
+  }
 
   @ApiConsumes(
     'application/x-www-form-urlencoded',
