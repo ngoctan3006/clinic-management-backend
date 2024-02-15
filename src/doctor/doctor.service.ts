@@ -81,10 +81,10 @@ export class DoctorService {
     const { page, pageSize } = query;
     const skip = (page - 1) * pageSize;
     const total = await this.prisma.medicalHistory.count({
-      where: { doctorId },
+      where: { doctorId, deletedAt: null },
     });
     const data = await this.prisma.medicalHistory.findMany({
-      where: { doctorId },
+      where: { doctorId, deletedAt: null },
       skip,
       take: pageSize,
       include: {
@@ -139,6 +139,38 @@ export class DoctorService {
     return await this.prisma.appointment.update({
       where: { id },
       data: { status },
+    });
+  }
+
+  async deleteMedicalHistory(
+    id: number,
+    userId: number,
+  ): Promise<MedicalHistory> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId, role: Role.DOCTOR },
+      include: { doctor: true },
+    });
+    if (!user) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    const doctorId = user.doctor.id;
+    const medicalHistory = await this.prisma.medicalHistory.findUnique({
+      where: { id, doctorId, deletedAt: null },
+    });
+    if (!medicalHistory) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Medical history not found',
+        data: null,
+      });
+    }
+    return await this.prisma.medicalHistory.update({
+      where: { id },
+      data: { deletedAt: new Date() },
     });
   }
 }

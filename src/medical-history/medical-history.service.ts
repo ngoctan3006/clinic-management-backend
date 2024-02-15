@@ -13,8 +13,11 @@ export class MedicalHistoryService {
   ): Promise<IResponse<MedicalHistory[]>> {
     const { page, pageSize } = query;
     const skip = (page - 1) * pageSize;
-    const total = await this.prisma.medicalHistory.count();
+    const total = await this.prisma.medicalHistory.count({
+      where: { deletedAt: null },
+    });
     const data = await this.prisma.medicalHistory.findMany({
+      where: { deletedAt: null },
       skip,
       take: pageSize,
       include: {
@@ -144,6 +147,7 @@ export class MedicalHistoryService {
       where: {
         id,
         doctorId: doctor.doctor.id,
+        deletedAt: null,
       },
     });
     if (!medicalHistory) {

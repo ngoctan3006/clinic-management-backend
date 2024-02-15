@@ -103,10 +103,10 @@ export class PatientService {
     const { page, pageSize } = query;
     const skip = (page - 1) * pageSize;
     const total = await this.prisma.medicalHistory.count({
-      where: { patientId },
+      where: { patientId, deletedAt: null },
     });
     const data = await this.prisma.medicalHistory.findMany({
-      where: { patientId },
+      where: { patientId, deletedAt: null },
       skip,
       take: pageSize,
       include: {

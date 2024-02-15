@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Appointment, MedicalHistory, Role } from '@prisma/client';
 import { CurrentUser, Roles } from 'src/common/decorators';
@@ -43,6 +51,19 @@ export class DoctorController {
       success: true,
       message: 'Change appointment status successfully',
       data: await this.doctorService.changeAppointmentStatus(id, status),
+    };
+  }
+
+  @Delete('medical-history/:id')
+  async deleteMedicalHistory(
+    @CurrentUser('id') userId: number,
+    @Param('id') id: number,
+  ): Promise<IResponse<null>> {
+    await this.doctorService.deleteMedicalHistory(id, userId);
+    return {
+      success: true,
+      message: 'Delete medical history successfully',
+      data: null,
     };
   }
 }
