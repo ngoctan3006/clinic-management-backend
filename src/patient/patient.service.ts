@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Appointment, AppointmentStatus } from '@prisma/client';
+import { IQuery, IResponse } from 'src/common/dtos';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAppointmentDto } from './dtos';
-import { Appointment } from '@prisma/client';
-import { IQuery, IResponse } from 'src/common/dtos';
 
 @Injectable()
 export class PatientService {
@@ -79,5 +79,70 @@ export class PatientService {
         total,
       },
     };
+  }
+
+  async cancelAppointment(id: number, patientId: number): Promise<Appointment> {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id, patientId },
+    });
+    if (!appointment) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Appointment not found',
+        data: null,
+      });
+    }
+    if (
+      appointment.status !== AppointmentStatus.PENDING &&
+      appointment.status !== AppointmentStatus.CONFIRMED
+    ) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Appointment cannot be canceled',
+        data: null,
+      });
+    }
+    await this.prisma.appointment.update({
+      where: { id },
+      data: {
+        status: AppointmentStatus.CANCELED_BY_PATIENT,
+      },
+    });
+    return await this.prisma.appointment.findUnique({
+      where: { id },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            degree: true,
+            speciality: true,
+            experience: true,
+            user: {
+              select: {
+                id: true,
+                phone: true,
+                fullname: true,
+                email: true,
+                address: true,
+                birthday: true,
+                gender: true,
+              },
+            },
+          },
+        },
+        patient: {
+          select: {
+            id: true,
+            phone: true,
+            fullname: true,
+            email: true,
+            address: true,
+            birthday: true,
+            gender: true,
+          },
+        },
+        service: true,
+      },
+    });
   }
 }

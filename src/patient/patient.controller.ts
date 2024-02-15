@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Appointment } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guards';
@@ -36,6 +44,18 @@ export class PatientController {
       success: true,
       message: 'Create appointment successfully',
       data: await this.patientService.createAppointment(patientId, data),
+    };
+  }
+
+  @Put('appointment/cancel/:id')
+  async cancelAppointment(
+    @CurrentUser('id') patientId: number,
+    @Query('id') id: number,
+  ): Promise<IResponse<Appointment>> {
+    return {
+      success: true,
+      message: 'Cancel appointment successfully',
+      data: await this.patientService.cancelAppointment(+id, patientId),
     };
   }
 }
