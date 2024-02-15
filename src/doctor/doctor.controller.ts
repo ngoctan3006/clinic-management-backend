@@ -66,4 +66,16 @@ export class DoctorController {
       data: null,
     };
   }
+
+  @Put('medical-history/restore/:id')
+  async restoreMedicalHistory(
+    @CurrentUser('id') userId: number,
+    @Param('id') id: number,
+  ): Promise<IResponse<MedicalHistory>> {
+    return {
+      success: true,
+      message: 'Restore medical history successfully',
+      data: await this.doctorService.restoreMedicalHistory(id, userId),
+    };
+  }
 }

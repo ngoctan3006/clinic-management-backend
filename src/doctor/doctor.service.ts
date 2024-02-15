@@ -173,4 +173,71 @@ export class DoctorService {
       data: { deletedAt: new Date() },
     });
   }
+
+  async restoreMedicalHistory(
+    id: number,
+    userId: number,
+  ): Promise<MedicalHistory> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId, role: Role.DOCTOR },
+      include: { doctor: true },
+    });
+    if (!user) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    const doctorId = user.doctor.id;
+    const medicalHistory = await this.prisma.medicalHistory.findUnique({
+      where: { id, doctorId, deletedAt: { not: null } },
+    });
+    if (!medicalHistory) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Medical history not found',
+        data: null,
+      });
+    }
+    await this.prisma.medicalHistory.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+    return await this.prisma.medicalHistory.findUnique({
+      where: { id, deletedAt: null },
+      include: {
+        doctor: {
+          select: {
+            id: true,
+            degree: true,
+            speciality: true,
+            experience: true,
+            user: {
+              select: {
+                id: true,
+                phone: true,
+                fullname: true,
+                email: true,
+                address: true,
+                birthday: true,
+                gender: true,
+              },
+            },
+          },
+        },
+        patient: {
+          select: {
+            id: true,
+            phone: true,
+            fullname: true,
+            email: true,
+            address: true,
+            birthday: true,
+            gender: true,
+          },
+        },
+      },
+    });
+  }
 }
