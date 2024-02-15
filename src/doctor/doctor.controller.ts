@@ -15,13 +15,10 @@ export class DoctorController {
 
   @Get('appointments')
   async getAllAppointments(
-    @CurrentUser('id') id: number,
+    @CurrentUser('id') userId: number,
+    @Query() query: IQuery,
   ): Promise<IResponse<Appointment[]>> {
-    return {
-      success: true,
-      message: 'Get all appointments successfully',
-      data: await this.doctorService.getAllAppointments(id),
-    };
+    return this.doctorService.getAllAppointments(userId, query);
   }
 
   @Get('medical-histories')

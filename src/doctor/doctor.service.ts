@@ -12,21 +12,29 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class DoctorService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAllAppointments(userId: number): Promise<Appointment[]> {
+  async getAllAppointments(
+    userId: number,
+    query: IQuery,
+  ): Promise<IResponse<Appointment[]>> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId, role: Role.DOCTOR },
       include: { doctor: true },
     });
-    const doctorId = user?.doctor.id;
-    if (!doctorId) {
+    if (!user) {
       throw new NotFoundException({
         success: false,
         message: 'Doctor not found',
         data: null,
       });
     }
-    return await this.prisma.appointment.findMany({
+    const doctorId = user.doctor.id;
+    const { page, pageSize } = query;
+    const skip = (page - 1) * pageSize;
+    const total = await this.prisma.appointment.count();
+    const data = await this.prisma.appointment.findMany({
       where: { doctorId },
+      skip,
+      take: pageSize,
       include: {
         patient: {
           select: {
@@ -42,6 +50,16 @@ export class DoctorService {
         service: true,
       },
     });
+    return {
+      success: true,
+      message: 'Get all appointments success',
+      data,
+      pagination: {
+        page,
+        pageSize,
+        total,
+      },
+    };
   }
 
   async getAllMedicalHistory(
