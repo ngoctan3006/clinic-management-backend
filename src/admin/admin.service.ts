@@ -32,6 +32,7 @@ export class AdminService {
     const data = await this.prisma.user.findMany({
       where: {
         role: Role.PATIENT,
+        deletedAt: null,
       },
       skip,
       take: pageSize,
@@ -46,6 +47,7 @@ export class AdminService {
         role: true,
         createdAt: true,
         updatedAt: true,
+        deletedAt: true,
       },
     });
     return {
@@ -91,6 +93,7 @@ export class AdminService {
         role: true,
         createdAt: true,
         updatedAt: true,
+        deletedAt: true,
         doctor: true,
       },
     });
@@ -229,6 +232,7 @@ export class AdminService {
         role: true,
         createdAt: true,
         updatedAt: true,
+        deletedAt: true,
         doctor: true,
       },
     });

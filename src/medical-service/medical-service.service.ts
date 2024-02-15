@@ -118,6 +118,7 @@ export class MedicalServiceService {
         price: true,
         createdAt: true,
         updatedAt: true,
+        deletedAt: true,
         doctors: {
           include: {
             doctor: {
