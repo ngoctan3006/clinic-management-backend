@@ -5,6 +5,7 @@ import {
   MedicalHistory,
   Role,
 } from '@prisma/client';
+import { UserWithoutPassword } from 'src/auth/dtos';
 import { IQuery, IResponse } from 'src/common/dtos';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateAppointmentDto } from './dtos';
@@ -12,6 +13,53 @@ import { CreateAppointmentDto } from './dtos';
 @Injectable()
 export class PatientService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getAllDoctor(query: IQuery): Promise<IResponse<UserWithoutPassword[]>> {
+    const { page, pageSize } = query;
+    const skip = (page - 1) * pageSize;
+    const total = await this.prisma.user.count({
+      where: {
+        role: Role.DOCTOR,
+        doctor: {
+          deletedAt: null,
+        },
+      },
+    });
+    const data = await this.prisma.user.findMany({
+      where: {
+        role: Role.DOCTOR,
+        doctor: {
+          deletedAt: null,
+        },
+      },
+      skip,
+      take: pageSize,
+      select: {
+        id: true,
+        phone: true,
+        fullname: true,
+        email: true,
+        address: true,
+        birthday: true,
+        gender: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        doctor: true,
+      },
+    });
+    return {
+      success: true,
+      message: 'Get all doctor success',
+      data,
+      pagination: {
+        page,
+        pageSize,
+        total,
+      },
+    };
+  }
 
   async createAppointment(
     patientId: number,

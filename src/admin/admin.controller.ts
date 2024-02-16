@@ -30,11 +30,35 @@ export class AdminController {
     return this.adminService.getAllPatient(query);
   }
 
+  @Get('patient/:id')
+  @ApiParam({ name: 'id', description: 'Patient id' })
+  async getPatientById(
+    @Param('id') id: number,
+  ): Promise<IResponse<UserWithoutPassword>> {
+    return {
+      success: true,
+      message: 'Get patient by id success',
+      data: await this.adminService.getPatientById(+id),
+    };
+  }
+
   @Get('doctors')
   async getAllDoctor(
     @Query() query: IQuery,
   ): Promise<IResponse<UserWithoutPassword[]>> {
     return this.adminService.getAllDoctor(query);
+  }
+
+  @Get('doctor/:id')
+  @ApiParam({ name: 'id', description: 'Doctor id' })
+  async getDoctorById(
+    @Param('id') id: number,
+  ): Promise<IResponse<UserWithoutPassword>> {
+    return {
+      success: true,
+      message: 'Get doctor by id success',
+      data: await this.adminService.getDoctorById(+id),
+    };
   }
 
   @ApiConsumes(

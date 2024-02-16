@@ -19,6 +19,33 @@ export class AdminService {
     private readonly userService: UserService,
   ) {}
 
+  async getPatientById(id: number): Promise<UserWithoutPassword> {
+    const patient = await this.prisma.user.findUnique({
+      where: { id, role: Role.PATIENT, deletedAt: null },
+      select: {
+        id: true,
+        phone: true,
+        fullname: true,
+        email: true,
+        address: true,
+        birthday: true,
+        gender: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+      },
+    });
+    if (!patient) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Patient not found',
+        data: null,
+      });
+    }
+    return patient;
+  }
+
   async getAllPatient(
     query: IQuery,
   ): Promise<IResponse<UserWithoutPassword[]>> {
@@ -27,6 +54,7 @@ export class AdminService {
     const total = await this.prisma.user.count({
       where: {
         role: Role.PATIENT,
+        deletedAt: null,
       },
     });
     const data = await this.prisma.user.findMany({
@@ -62,6 +90,41 @@ export class AdminService {
     };
   }
 
+  async getDoctorById(id: number): Promise<UserWithoutPassword> {
+    const patient = await this.prisma.user.findFirst({
+      where: {
+        role: Role.DOCTOR,
+        doctor: {
+          id,
+          deletedAt: null,
+        },
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        phone: true,
+        fullname: true,
+        email: true,
+        address: true,
+        birthday: true,
+        gender: true,
+        role: true,
+        doctor: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+      },
+    });
+    if (!patient) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    return patient;
+  }
+
   async getAllDoctor(query: IQuery): Promise<IResponse<UserWithoutPassword[]>> {
     const { page, pageSize } = query;
     const skip = (page - 1) * pageSize;
@@ -71,6 +134,7 @@ export class AdminService {
         doctor: {
           deletedAt: null,
         },
+        deletedAt: null,
       },
     });
     const data = await this.prisma.user.findMany({
