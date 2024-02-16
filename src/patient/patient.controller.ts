@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Appointment, MedicalHistory } from '@prisma/client';
+import { UserWithoutPassword } from 'src/auth/dtos';
 import { JwtGuard } from 'src/auth/guards';
 import { CurrentUser } from 'src/common/decorators';
 import { IQuery, IResponse } from 'src/common/dtos';
@@ -22,6 +23,13 @@ import { PatientService } from './patient.service';
 @ApiBearerAuth()
 export class PatientController {
   constructor(private readonly patientService: PatientService) {}
+
+  @Get('doctors')
+  async getAllDoctor(
+    @Query() query: IQuery,
+  ): Promise<IResponse<UserWithoutPassword[]>> {
+    return this.patientService.getAllDoctor(query);
+  }
 
   @Get('appointments')
   async getAllAppointment(
