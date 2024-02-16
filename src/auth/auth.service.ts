@@ -5,9 +5,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { ENV_KEY } from 'src/common/constants';
 import { comparePassword } from 'src/common/utils';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import {
   JwtPayload,
@@ -22,10 +23,27 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  async getMe(userId: number): Promise<UserWithoutPassword> {
-    const user = await this.userService.findById(userId);
+  async getMe(id: number): Promise<UserWithoutPassword> {
+    const user = await this.prisma.user.findUnique({
+      where: { id, deletedAt: null },
+      select: {
+        id: true,
+        phone: true,
+        fullname: true,
+        email: true,
+        address: true,
+        birthday: true,
+        gender: true,
+        role: true,
+        doctor: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+      },
+    });
     if (!user) {
       throw new NotFoundException({
         success: false,
@@ -33,7 +51,9 @@ export class AuthService {
         data: null,
       });
     }
-    delete user.password;
+    if (user.role !== Role.DOCTOR) {
+      delete user.doctor;
+    }
 
     return user;
   }
@@ -94,12 +114,11 @@ export class AuthService {
       });
     }
     const { accessToken, refreshToken } = await this.generateToken(user);
-    delete user.password;
 
     return {
       accessToken,
       refreshToken,
-      user,
+      user: await this.getMe(user.id),
     };
   }
 
