@@ -3,13 +3,13 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ENV_KEY } from 'src/common/constants';
+import { ENV_KEY, SEND_MAIL_QUEUE } from 'src/common/constants';
 import { MailQueueService, MailService } from './services';
 
 @Module({
   imports: [
     BullModule.registerQueue({
-      name: 'send-mail',
+      name: SEND_MAIL_QUEUE,
     }),
     MailerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
