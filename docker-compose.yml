@@ -16,5 +16,12 @@ services:
     volumes:
       - clinic_management:/var/lib/postgresql/data
 
+  redis:
+    image: redis:latest
+    container_name: clinic_management_redis
+    ports:
+      - ${REDIS_PORT}:6379
+    restart: always
+
 volumes:
   clinic_management:
