@@ -6,6 +6,8 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { AuthModule } from './auth/auth.module';
 import { ENV_KEY } from './common/constants';
 import { DoctorModule } from './doctor/doctor.module';
+import { MailModule } from './mail/mail.module';
+import { EmailProcessor } from './mail/processors';
 import { MedicalHistoryModule } from './medical-history/medical-history.module';
 import { MedicalServiceModule } from './medical-service/medical-service.module';
 import { PatientModule } from './patient/patient.module';
@@ -33,6 +35,7 @@ import { UserModule } from './user/user.module';
       inject: [ConfigService],
     }),
     DoctorModule,
+    MailModule,
     MedicalHistoryModule,
     MedicalServiceModule,
     PatientModule,
@@ -41,6 +44,6 @@ import { UserModule } from './user/user.module';
     UserModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [EmailProcessor],
 })
 export class AppModule {}

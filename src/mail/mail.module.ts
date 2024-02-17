@@ -27,7 +27,7 @@ import { MailQueueService, MailService } from './services';
           )}" <${configService.get<string>(ENV_KEY.MAIL_FROM_ADDRESS)}>`,
         },
         template: {
-          dir: __dirname + '/../modules/mail/templates',
+          dir: __dirname + '/../mail/templates',
           adapter: new HandlebarsAdapter(),
           options: {
             strict: true,
