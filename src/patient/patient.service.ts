@@ -5,14 +5,19 @@ import {
   MedicalHistory,
   Role,
 } from '@prisma/client';
+import * as moment from 'moment';
 import { UserWithoutPassword } from 'src/auth/dtos';
 import { IQuery, IResponse } from 'src/common/dtos';
+import { MailQueueService } from 'src/mail/services';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateAppointmentDto } from './dtos';
+import { CancelAppointmentDto, CreateAppointmentDto } from './dtos';
 
 @Injectable()
 export class PatientService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailQueueService: MailQueueService,
+  ) {}
 
   async getAllDoctor(query: IQuery): Promise<IResponse<UserWithoutPassword[]>> {
     const { page, pageSize } = query;
@@ -65,14 +70,66 @@ export class PatientService {
     patientId: number,
     data: CreateAppointmentDto,
   ): Promise<Appointment> {
-    const endTime = new Date(data.startTime.getTime() + 30 * 60 * 1000);
-    return await this.prisma.appointment.create({
-      data: {
-        ...data,
-        endTime,
-        patientId,
+    const { doctorId, serviceId, startTime } = data;
+    const doctor = await this.prisma.user.findFirst({
+      where: { role: Role.DOCTOR, doctor: { id: doctorId, deletedAt: null } },
+      select: {
+        fullname: true,
       },
     });
+    if (!doctor) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Doctor not found',
+        data: null,
+      });
+    }
+    const patient = await this.prisma.user.findFirst({
+      where: { id: patientId, role: Role.PATIENT, deletedAt: null },
+      select: {
+        fullname: true,
+        email: true,
+      },
+    });
+    if (!patient) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Patient not found',
+        data: null,
+      });
+    }
+    const service = await this.prisma.medicalService.findUnique({
+      where: { id: serviceId, deletedAt: null },
+      select: {
+        name: true,
+      },
+    });
+    if (!service) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Service not found',
+        data: null,
+      });
+    }
+    const endTime = moment(startTime).add(30, 'minutes').toDate();
+    const appointment = await this.prisma.appointment.create({
+      data: {
+        patientId,
+        doctorId,
+        serviceId,
+        startTime,
+        endTime,
+      },
+    });
+    await this.mailQueueService.addNotiAppointmentCreatedMail({
+      to: patient.email,
+      fullname: patient.fullname,
+      time: moment(startTime).format('HH:mm'),
+      date: moment(startTime).format('DD/MM/YYYY'),
+      serviceName: service.name,
+      doctorName: doctor.fullname,
+    });
+    return appointment;
   }
 
   async getAppointmentByPatientId(
@@ -202,9 +259,35 @@ export class PatientService {
     };
   }
 
-  async cancelAppointment(id: number, patientId: number): Promise<Appointment> {
+  async cancelAppointment(
+    id: number,
+    patientId: number,
+    data: CancelAppointmentDto,
+  ): Promise<Appointment> {
     const appointment = await this.prisma.appointment.findUnique({
-      where: { id, patientId },
+      where: { id, patientId, deletedAt: null },
+      include: {
+        doctor: {
+          select: {
+            user: {
+              select: {
+                fullname: true,
+              },
+            },
+          },
+        },
+        patient: {
+          select: {
+            fullname: true,
+            email: true,
+          },
+        },
+        service: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
     if (!appointment) {
       throw new NotFoundException({
@@ -227,8 +310,19 @@ export class PatientService {
       where: { id },
       data: {
         status: AppointmentStatus.CANCELED_BY_PATIENT,
+        reasonCanceled: data.reason,
       },
     });
+    await this.mailQueueService.addNotiAppointmentCanceledByPatientMail({
+      to: appointment.patient.email,
+      fullname: appointment.patient.fullname,
+      doctorName: appointment.doctor.user.fullname,
+      time: moment(appointment.startTime).format('HH:mm'),
+      date: moment(appointment.startTime).format('DD/MM/YYYY'),
+      serviceName: appointment.service.name,
+      reason: data.reason,
+    });
+
     return await this.prisma.appointment.findUnique({
       where: { id },
       include: {

@@ -45,12 +45,12 @@ export class DoctorController {
   @Put('appointment/:id')
   async changeAppointmentStatus(
     @Param('id') id: number,
-    @Body() { status }: ChangeAppointmentStatusDto,
+    @Body() data: ChangeAppointmentStatusDto,
   ): Promise<IResponse<Appointment>> {
     return {
       success: true,
       message: 'Change appointment status successfully',
-      data: await this.doctorService.changeAppointmentStatus(id, status),
+      data: await this.doctorService.changeAppointmentStatus(id, data),
     };
   }
 

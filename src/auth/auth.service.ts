@@ -69,15 +69,13 @@ export class AuthService {
       });
     }
 
-    if (email) {
-      const emailExist = await this.userService.findByEmail(email);
-      if (emailExist) {
-        throw new BadRequestException({
-          success: false,
-          message: 'Email already exists',
-          data: null,
-        });
-      }
+    const emailExist = await this.userService.findByEmail(email);
+    if (emailExist) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Email already exists',
+        data: null,
+      });
     }
 
     if (password !== confirmPassword) {

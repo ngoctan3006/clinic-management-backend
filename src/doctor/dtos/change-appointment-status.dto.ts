@@ -1,13 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AppointmentStatus } from '@prisma/client';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+
+export enum DoctorChangeStatus {
+  CONFIRMED = 'CONFIRMED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  CANCELED_BY_DOCTOR = 'CANCELED_BY_DOCTOR',
+}
 
 export class ChangeAppointmentStatusDto {
   @ApiProperty({
-    enum: AppointmentStatus,
-    example: AppointmentStatus.IN_PROGRESS,
+    enum: DoctorChangeStatus,
+    example: DoctorChangeStatus.IN_PROGRESS,
   })
   @IsNotEmpty()
   @IsString()
-  status: AppointmentStatus;
+  status: DoctorChangeStatus;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  reason: string;
 }

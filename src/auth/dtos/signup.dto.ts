@@ -25,9 +25,8 @@ export class SignupDto {
   @IsString()
   fullname: string;
 
-  @ApiProperty({ required: false })
-  @Transform(transformValue)
-  @IsOptional()
+  @ApiProperty()
+  @IsNotEmpty()
   @IsEmail()
   email: string;
 
