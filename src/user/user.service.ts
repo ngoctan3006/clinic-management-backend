@@ -17,15 +17,21 @@ export class UserService {
   ) {}
 
   async findById(id: number): Promise<User> {
-    return await this.prisma.user.findUnique({ where: { id } });
+    return await this.prisma.user.findUnique({
+      where: { id, deletedAt: null },
+    });
   }
 
   async findByEmail(email: string): Promise<User> {
-    return await this.prisma.user.findFirst({ where: { email } });
+    return await this.prisma.user.findFirst({
+      where: { email, deletedAt: null },
+    });
   }
 
   async findByPhone(phone: string): Promise<User> {
-    return await this.prisma.user.findUnique({ where: { phone } });
+    return await this.prisma.user.findUnique({
+      where: { phone, deletedAt: null },
+    });
   }
 
   async create(data: CreateUserDto): Promise<User> {
