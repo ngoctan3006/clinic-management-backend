@@ -183,15 +183,14 @@ export class AdminService {
         data: null,
       });
     }
-    if (email) {
-      const emailExist = await this.userService.findByEmail(email);
-      if (emailExist) {
-        throw new BadRequestException({
-          success: false,
-          message: 'Email already exists',
-          data: null,
-        });
-      }
+
+    const emailExist = await this.userService.findByEmail(email);
+    if (emailExist) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Email already exists',
+        data: null,
+      });
     }
 
     try {
@@ -262,6 +261,11 @@ export class AdminService {
       where: { id },
       data: {
         deletedAt: new Date(),
+        user: {
+          update: {
+            deletedAt: new Date(),
+          },
+        },
       },
     });
   }
@@ -281,6 +285,11 @@ export class AdminService {
       where: { id },
       data: {
         deletedAt: null,
+        user: {
+          update: {
+            deletedAt: null,
+          },
+        },
       },
     });
     return await this.prisma.user.findUnique({
