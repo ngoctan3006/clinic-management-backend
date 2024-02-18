@@ -14,7 +14,7 @@ import { UserWithoutPassword } from 'src/auth/dtos';
 import { JwtGuard } from 'src/auth/guards';
 import { CurrentUser } from 'src/common/decorators';
 import { IQuery, IResponse } from 'src/common/dtos';
-import { CreateAppointmentDto } from './dtos';
+import { CancelAppointmentDto, CreateAppointmentDto } from './dtos';
 import { PatientService } from './patient.service';
 
 @ApiTags('patient')
@@ -64,15 +64,21 @@ export class PatientController {
     };
   }
 
+  @ApiConsumes(
+    'application/x-www-form-urlencoded',
+    'multipart/form-data',
+    'application/json',
+  )
   @Put('appointment/cancel/:id')
   async cancelAppointment(
     @CurrentUser('id') patientId: number,
     @Param('id') id: number,
+    @Body() data: CancelAppointmentDto,
   ): Promise<IResponse<Appointment>> {
     return {
       success: true,
       message: 'Cancel appointment successfully',
-      data: await this.patientService.cancelAppointment(+id, patientId),
+      data: await this.patientService.cancelAppointment(+id, patientId, data),
     };
   }
 }

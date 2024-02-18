@@ -10,7 +10,7 @@ import { UserWithoutPassword } from 'src/auth/dtos';
 import { IQuery, IResponse } from 'src/common/dtos';
 import { MailQueueService } from 'src/mail/services';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateAppointmentDto } from './dtos';
+import { CancelAppointmentDto, CreateAppointmentDto } from './dtos';
 
 @Injectable()
 export class PatientService {
@@ -259,9 +259,35 @@ export class PatientService {
     };
   }
 
-  async cancelAppointment(id: number, patientId: number): Promise<Appointment> {
+  async cancelAppointment(
+    id: number,
+    patientId: number,
+    data: CancelAppointmentDto,
+  ): Promise<Appointment> {
     const appointment = await this.prisma.appointment.findUnique({
       where: { id, patientId },
+      include: {
+        doctor: {
+          select: {
+            user: {
+              select: {
+                fullname: true,
+              },
+            },
+          },
+        },
+        patient: {
+          select: {
+            fullname: true,
+            email: true,
+          },
+        },
+        service: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
     if (!appointment) {
       throw new NotFoundException({
@@ -284,8 +310,19 @@ export class PatientService {
       where: { id },
       data: {
         status: AppointmentStatus.CANCELED_BY_PATIENT,
+        reasonCanceled: data.reason,
       },
     });
+    await this.mailQueueService.addNotiAppointmentCanceledByPatientMail({
+      to: appointment.patient.email,
+      fullname: appointment.patient.fullname,
+      doctorName: appointment.doctor.user.fullname,
+      time: moment(appointment.startTime).format('HH:mm'),
+      date: moment(appointment.startTime).format('DD/MM/YYYY'),
+      serviceName: appointment.service.name,
+      reason: data.reason,
+    });
+
     return await this.prisma.appointment.findUnique({
       where: { id },
       include: {
