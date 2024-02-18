@@ -265,7 +265,7 @@ export class PatientService {
     data: CancelAppointmentDto,
   ): Promise<Appointment> {
     const appointment = await this.prisma.appointment.findUnique({
-      where: { id, patientId },
+      where: { id, patientId, deletedAt: null },
       include: {
         doctor: {
           select: {
