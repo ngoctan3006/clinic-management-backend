@@ -97,7 +97,6 @@ export class DoctorService {
   ): Promise<IResponse<MedicalHistory[]>> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId, role: Role.DOCTOR },
-      include: { doctor: true },
     });
     if (!user) {
       throw new NotFoundException({
@@ -106,14 +105,13 @@ export class DoctorService {
         data: null,
       });
     }
-    const doctorId = user.doctor.id;
     const { page, pageSize } = query;
     const skip = (page - 1) * pageSize;
     const total = await this.prisma.medicalHistory.count({
-      where: { doctorId, deletedAt: null },
+      where: { deletedAt: null },
     });
     const data = await this.prisma.medicalHistory.findMany({
-      where: { doctorId, deletedAt: null },
+      where: { deletedAt: null },
       skip,
       take: pageSize,
       include: {
